@@ -1,6 +1,13 @@
-import { useState } from "react";
-import "./App.css";
+import { LiaRobotSolid } from "react-icons/lia";
+import TheModal from "./components/Modal";
 
-function App() {}
+function App() {
+  return (
+    <div className="app">
+      <LiaRobotSolid fill="white" size={200} />
+      <TheModal />
+    </div>
+  );
+}
 
 export default App;
