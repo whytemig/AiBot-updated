@@ -2,23 +2,42 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import { useState } from "react";
-import { TextField } from "@mui/material";
+import { CircularProgress, TextField } from "@mui/material";
+import ResponseModal from "./ResponseModal";
 
 const TheModal = () => {
   const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState("");
+  const [response, setResponse] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  const style = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 400,
-    bgcolor: "background.paper",
-    border: "2px solid #000",
-    boxShadow: 24,
-    p: 4,
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ message }),
+    };
+    try {
+      setLoading(true);
+      const res = await fetch("http://localhost:3500/chat", options);
+      const data = await res.json();
+      setLoading(false);
+      setResponse(data);
+      setMessage("");
+      setOpen(false);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setResponse(null);
   };
 
   return (
@@ -42,19 +61,24 @@ const TheModal = () => {
           >
             Ask Me Anything?
           </Typography>
-          <form className="form">
+          <form className="form" onSubmit={handleSubmit}>
             <TextField
               id="filled-basic"
               label="Question"
               variant="filled"
               sx={{ margin: "15px 0", width: "100%", border: "none" }}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
             />
             <button type="submit" className="btn">
-              Submit
+              {loading ? <CircularProgress /> : "Submit"}
             </button>
           </form>
         </Box>
       </Modal>
+      {response && (
+        <ResponseModal response={response} closeModal={handleCloseModal} />
+      )}
     </div>
   );
 };
